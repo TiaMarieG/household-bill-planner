@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
+from app.routers import bills
 
 
 def create_app() -> FastAPI:
@@ -21,6 +22,7 @@ def create_app() -> FastAPI:
         """Report that the API is running and which environment it is in."""
         return {"status": "ok", "env": settings.app_env}
 
+    app.include_router(bills.router)
     return app
 
 
