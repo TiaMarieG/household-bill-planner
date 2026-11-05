@@ -5,7 +5,7 @@ from enum import Enum
 
 from app.domain.pay import PaySchedule
 
-ZERO = Decimal("0")
+ZERO = Decimal("0.00")
 
 
 class BillStatus(str, Enum):

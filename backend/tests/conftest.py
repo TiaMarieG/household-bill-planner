@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -9,10 +10,12 @@ from sqlalchemy import Engine, create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
+from app.clock import get_today
 from app.config import get_settings
 from app.db import get_session
 from app.main import create_app
 
+TEST_TODAY = date(2026, 11, 30)
 ALEMBIC_INI = Path(__file__).resolve().parents[1] / "alembic.ini"
 
 
@@ -66,5 +69,6 @@ def client(db_session: Session) -> Iterator[TestClient]:
     """API client whose requests all use the rolled-back test session."""
     app = create_app()
     app.dependency_overrides[get_session] = lambda: db_session
+    app.dependency_overrides[get_today] = lambda: TEST_TODAY
     with TestClient(app) as test_client:
         yield test_client

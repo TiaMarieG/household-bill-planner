@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Annotated
 
@@ -169,3 +169,69 @@ class WorkWeekRead(BaseModel):
     earner_id: int
     week_start: date
     hours: Decimal
+
+
+SignedMoney = Annotated[Decimal, Field(max_digits=12, decimal_places=2)]
+
+
+class BalanceCreate(BaseModel):
+    """A bank balance reading; includes_same_day_pay is required only when as_of_date is a payday."""
+
+    amount: SignedMoney
+    as_of_date: date
+    includes_same_day_pay: bool | None = None
+
+
+class BalanceRead(BaseModel):
+    """A stored bank balance reading."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    amount: Decimal
+    as_of_date: date
+    includes_same_day_pay: bool | None
+    recorded_at: datetime
+
+
+class WeekHoursRead(BaseModel):
+    """Hours used for one workweek of a paycheck, and whether they are the person's default."""
+
+    week_start: date
+    hours: Decimal
+    is_default: bool
+
+
+class PaycheckRead(BaseModel):
+    """One expected paycheck with the numbers behind it."""
+
+    earner_id: int
+    earner_name: str
+    payday: date
+    weeks: list[WeekHoursRead]
+    gross: Decimal
+    net: Decimal
+    uses_default_hours: bool
+    deposited: bool
+
+
+class WindowRead(BaseModel):
+    """One payday-to-payday window: starting balance, money in, bills, and what is left."""
+
+    start: date
+    end: date
+    starting_balance: Decimal
+    incoming: Decimal
+    unpaid: Decimal
+    pending_withdrawal: Decimal
+    overdue: Decimal
+    remaining: Decimal
+    paychecks: list[PaycheckRead]
+    bills: list[OccurrenceRead]
+
+
+class SummaryRead(BaseModel):
+    """The balance the projection starts from and the windows that follow it."""
+
+    balance: BalanceRead
+    windows: list[WindowRead]

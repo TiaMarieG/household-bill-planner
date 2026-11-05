@@ -205,3 +205,15 @@ class WorkWeek(Base):
     )
 
     earner: Mapped[Earner] = relationship(back_populates="work_weeks")
+
+
+class BalanceSnapshot(Base):
+    """A bank balance as of a given date; the most recent one is the current balance."""
+
+    __tablename__ = "balance_snapshots"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    as_of_date: Mapped[date] = mapped_column(index=True)
+    includes_same_day_pay: Mapped[bool | None]
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
