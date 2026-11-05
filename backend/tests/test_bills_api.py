@@ -1,10 +1,4 @@
-from collections.abc import Iterator
-
 import pytest
-from fastapi.testclient import TestClient
-
-from app.db import get_session
-from app.main import create_app
 
 RENT = {"name": "Rent", "amount": "1200.00", "frequency": "months", "anchor_date": "2026-11-01"}
 MEDICINE = {
@@ -14,14 +8,6 @@ MEDICINE = {
     "interval_count": 28,
     "anchor_date": "2026-11-03",
 }
-
-
-@pytest.fixture
-def client(db_session) -> Iterator[TestClient]:
-    app = create_app()
-    app.dependency_overrides[get_session] = lambda: db_session
-    with TestClient(app) as test_client:
-        yield test_client
 
 
 def create(client, payload) -> dict:
@@ -45,6 +31,14 @@ def test_create_and_fetch_bill(client):
     assert fetched["amount"] == "1200.00"
     assert fetched["interval_count"] == 1
     assert fetched["is_active"] is True
+
+
+def test_response_uses_stored_format(client):
+    created = create(client, RENT | {"amount": "1200"})
+    updated = client.patch(f"/api/bills/{created['id']}", json={"amount": "1250.5"}).json()
+
+    assert created["amount"] == "1200.00"
+    assert updated["amount"] == "1250.50"
 
 
 def test_name_is_trimmed(client):

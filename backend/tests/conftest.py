@@ -4,11 +4,14 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
+from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.db import get_session
+from app.main import create_app
 
 ALEMBIC_INI = Path(__file__).resolve().parents[1] / "alembic.ini"
 
@@ -56,3 +59,12 @@ def db_session(db_engine: Engine) -> Iterator[Session]:
         finally:
             session.close()
             transaction.rollback()
+
+
+@pytest.fixture
+def client(db_session: Session) -> Iterator[TestClient]:
+    """API client whose requests all use the rolled-back test session."""
+    app = create_app()
+    app.dependency_overrides[get_session] = lambda: db_session
+    with TestClient(app) as test_client:
+        yield test_client

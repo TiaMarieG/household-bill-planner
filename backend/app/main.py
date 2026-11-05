@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import bills
+from app.routers import bills, earners, household
 
 
 def create_app() -> FastAPI:
@@ -23,6 +23,8 @@ def create_app() -> FastAPI:
         return {"status": "ok", "env": settings.app_env}
 
     app.include_router(bills.router)
+    app.include_router(earners.router)
+    app.include_router(household.router)
     return app
 
 

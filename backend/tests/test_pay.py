@@ -75,6 +75,22 @@ def test_biweekly_pay_period_covers_two_weeks():
     assert BIWEEKLY.pay_period_for(date(2026, 11, 20)) == (date(2026, 11, 1), date(2026, 11, 14))
 
 
+def test_weekly_payday_covers_one_workweek():
+    assert WEEKLY.workweek_starts(date(2026, 11, 13)) == [date(2026, 11, 1)]
+
+
+def test_biweekly_payday_covers_two_workweeks():
+    assert BIWEEKLY.workweek_starts(date(2026, 11, 20)) == [date(2026, 11, 1), date(2026, 11, 8)]
+
+
+@pytest.mark.parametrize(
+    ("day", "expected"),
+    [(date(2026, 11, 1), True), (date(2026, 10, 25), True), (date(2026, 11, 2), False)],
+)
+def test_is_workweek_start(day, expected):
+    assert WEEKLY.is_workweek_start(day) is expected
+
+
 def test_pay_period_rejects_non_payday():
     with pytest.raises(ValueError):
         WEEKLY.pay_period_for(date(2026, 11, 12))

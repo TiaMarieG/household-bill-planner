@@ -59,6 +59,16 @@ class PaySchedule:
         start = end - timedelta(days=self.period_days - 1)
         return start, end
 
+    def workweek_starts(self, payday: date) -> list[date]:
+        """First day of each workweek inside the pay period paid on the given payday."""
+        start, _ = self.pay_period_for(payday)
+        return [start + timedelta(weeks=index) for index in range(self.weeks_per_period)]
+
+    def is_workweek_start(self, day: date) -> bool:
+        """True when the date is the first day of a workweek on this schedule."""
+        first_start, _ = self.pay_period_for(self.anchor_payday)
+        return (day - first_start).days % 7 == 0
+
 
 @dataclass(frozen=True)
 class Earner:

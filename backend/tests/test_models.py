@@ -104,3 +104,29 @@ def test_deleting_bill_deletes_its_status_rows_in_the_database(db_session):
     db_session.execute(text("DELETE FROM bills WHERE id = :id"), {"id": bill.id})
 
     assert db_session.scalar(text("SELECT count(*) FROM bill_occurrences")) == 0
+
+
+def test_household_settings_allow_only_one_row(db_session):
+    db_session.execute(
+        text("INSERT INTO household_settings (id, budget_anchor_payday) VALUES (1, '2026-11-06')")
+    )
+
+    with pytest.raises(IntegrityError):
+        db_session.execute(
+            text("INSERT INTO household_settings (id, budget_anchor_payday) VALUES (2, '2026-11-06')")
+        )
+
+
+@pytest.mark.parametrize(
+    ("pay_type", "hourly_rate", "annual_salary"),
+    [("hourly", None, 50000), ("salary", 20, None), ("hourly", 0, None)],
+)
+def test_database_requires_pay_amount_matching_pay_type(db_session, pay_type, hourly_rate, annual_salary):
+    with pytest.raises(IntegrityError):
+        db_session.execute(
+            text(
+                "INSERT INTO earners (name, pay_type, hourly_rate, annual_salary, withholding_percent,"
+                " anchor_payday) VALUES ('Alex', :pay_type, :rate, :salary, 18, '2026-11-06')"
+            ),
+            {"pay_type": pay_type, "rate": hourly_rate, "salary": annual_salary},
+        )

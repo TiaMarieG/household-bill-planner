@@ -42,6 +42,7 @@ def create_bill(session: Session, data: BillCreate) -> Bill:
     bill = Bill(**data.model_dump())
     session.add(bill)
     session.commit()
+    session.refresh(bill)
     return bill
 
 
@@ -66,6 +67,7 @@ def update_bill(session: Session, bill_id: int, data: BillUpdate) -> Bill:
                 bill.occurrences.remove(occurrence)
 
     session.commit()
+    session.refresh(bill)
     return bill
 
 
