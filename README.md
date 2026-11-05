@@ -9,12 +9,12 @@ week.
 
 ## Stack
 
-| Layer    | Tech                                   |
-| -------- | -------------------------------------- |
-| Backend  | Python 3.11+, FastAPI, SQLAlchemy 2    |
-| Database | PostgreSQL 17 (Docker), Alembic        |
-| Frontend | React 19, Vite                         |
-| Tests    | pytest (against a real Postgres)       |
+| Layer    | Tech                                             |
+| -------- | ------------------------------------------------ |
+| Backend  | Python 3.11+, FastAPI, SQLAlchemy 2              |
+| Database | PostgreSQL 17 (Docker), Alembic                  |
+| Frontend | React 19, Vite, React Router, TanStack Query     |
+| Tests    | pytest (real Postgres), Vitest + Testing Library |
 
 ## Running locally
 
@@ -64,6 +64,9 @@ App: http://localhost:5173 (requests to `/api` are proxied to the backend)
 ```bash
 cd backend
 pytest
+
+cd ../frontend
+npm test
 ```
 
 Database tests run against `TEST_DATABASE_URL`. The schema is rebuilt from the

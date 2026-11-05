@@ -1,20 +1,22 @@
-import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router";
+import Layout from "./components/Layout.jsx";
+import BillsPage from "./pages/BillsPage.jsx";
+import CalendarPage from "./pages/CalendarPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+import SettingsPage from "./pages/SettingsPage.jsx";
+import WeekPage from "./pages/WeekPage.jsx";
 
-/** Placeholder home screen that confirms the frontend can reach the API. */
+/** Page routes, all rendered inside the shared layout. */
 export default function App() {
-  const [apiStatus, setApiStatus] = useState("checking…");
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
-      .then((data) => setApiStatus(data.status))
-      .catch(() => setApiStatus("unreachable"));
-  }, []);
-
   return (
-    <main className="app">
-      <h1>Household Bill Planner</h1>
-      <p>API status: {apiStatus}</p>
-    </main>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<CalendarPage />} />
+        <Route path="week" element={<WeekPage />} />
+        <Route path="bills" element={<BillsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
