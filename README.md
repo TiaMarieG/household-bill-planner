@@ -29,6 +29,8 @@ npm run dev        # every time: database + API + web app, with live reload
 - App: http://localhost:5173
 - API docs: http://localhost:8000/docs
 
+To see the app with realistic data, run `npm run seed` once (fake data only).
+
 Press `Ctrl+C` to stop the API and web app. The database keeps running in the
 background; stop it with `npm run db:stop`.
 
@@ -39,6 +41,7 @@ background; stop it with `npm run db:stop`.
 | `npm run setup`   | Creates `.env` (random local DB password) if missing, creates `backend/.venv`, installs Python and npm packages (root and frontend), starts Postgres, creates the test database, applies migrations. Safe to rerun. |
 | `npm run dev`     | Starts Postgres, applies any new migrations, then runs the API and web app together. |
 | `npm test`        | Runs backend (pytest) and frontend (Vitest) tests and reports both.          |
+| `npm run seed`    | Fills an empty local database with fake sample data (dates relative to today). Add `-- --reset` to replace existing data. Refuses to run when `APP_ENV=production`. |
 | `npm run db:stop` | Stops the Postgres container. Data is kept.                                  |
 
 There is one `.env` in the repo root, read by both Docker Compose and the backend.

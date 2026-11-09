@@ -28,3 +28,12 @@ export function formatDate(isoDate) {
     day: "numeric",
   });
 }
+
+/** Long readable date such as "Sunday, November 1". */
+export function formatLongDate(isoDate) {
+  return parseISODate(isoDate).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}

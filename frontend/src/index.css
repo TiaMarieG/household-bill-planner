@@ -189,3 +189,46 @@ a {
     animation-duration: 0.01ms !important;
   }
 }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.small {
+  font-size: 0.8125rem;
+}
+
+button {
+  font: inherit;
+}
+
+.form-error {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--danger-surface);
+  color: var(--danger);
+}
+
+.form-error p {
+  margin: 0 0 0.5rem;
+}
+
+.icon-button {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}

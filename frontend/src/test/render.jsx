@@ -18,13 +18,28 @@ export function renderApp(path = "/") {
   );
 }
 
-/** Replace fetch with a function that answers each "/api/..." path from a map. */
+/**
+ * Replace fetch with a fake API. Routes are keyed "METHOD /path" or just "/path" (any method);
+ * a handler is a response object or a function receiving { query, body }. Returns the list of calls.
+ */
 export function mockApi(routes) {
-  globalThis.fetch = async (url) => {
-    const path = String(url).replace(/^\/api/, "");
-    const handler = routes[path];
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    const parsed = new URL(String(url), "http://localhost");
+    const path = parsed.pathname.replace(/^\/api/, "");
+    const method = options.method ?? "GET";
+    const call = {
+      method,
+      path,
+      query: Object.fromEntries(parsed.searchParams),
+      body: options.body ? JSON.parse(options.body) : undefined,
+    };
+    calls.push(call);
+
+    const handler = routes[`${method} ${path}`] ?? routes[path];
     if (!handler) return new Response(JSON.stringify({ detail: "Not Found" }), { status: 404 });
-    const { status = 200, body } = typeof handler === "function" ? handler() : handler;
+    const { status = 200, body } = typeof handler === "function" ? handler(call) : handler;
     return new Response(body === undefined ? null : JSON.stringify(body), { status });
   };
+  return calls;
 }
