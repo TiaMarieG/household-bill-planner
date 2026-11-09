@@ -16,68 +16,66 @@ week.
 | Frontend | React 19, Vite, React Router, TanStack Query     |
 | Tests    | pytest (real Postgres), Vitest + Testing Library |
 
-## Running locally
+## Quick start
 
-### 1. Configure
-
-```bash
-cp .env.example .env    # then change POSTGRES_PASSWORD and both URLs to match
-```
-
-There is one `.env` in the repo root. Docker Compose and the backend both read it.
-
-### 2. Database
+**Prerequisites:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running),
+Python 3.11+, Node.js 20+. Works in Git Bash, PowerShell and macOS/Linux terminals.
 
 ```bash
-docker compose up -d --wait db
+npm run setup      # once, and again after pulling changes that add packages or migrations
+npm run dev        # every time: database + API + web app, with live reload
 ```
 
-On first start the container creates two databases: `bill_planner` for the app and
-`bill_planner_test` for tests. The init script only runs when the data volume is
-new; to start over, run `docker compose down -v` (this deletes all local data).
+- App: http://localhost:5173
+- API docs: http://localhost:8000/docs
 
-### 3. Backend
+Press `Ctrl+C` to stop the API and web app. The database keeps running in the
+background; stop it with `npm run db:stop`.
+
+## Commands
+
+| Command           | What it does                                                                 |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `npm run setup`   | Creates `.env` (random local DB password) if missing, creates `backend/.venv`, installs Python and npm packages (root and frontend), starts Postgres, creates the test database, applies migrations. Safe to rerun. |
+| `npm run dev`     | Starts Postgres, applies any new migrations, then runs the API and web app together. |
+| `npm test`        | Runs backend (pytest) and frontend (Vitest) tests and reports both.          |
+| `npm run db:stop` | Stops the Postgres container. Data is kept.                                  |
+
+There is one `.env` in the repo root, read by both Docker Compose and the backend.
+You never need to activate the virtual environment; the scripts call its Python directly.
+
+### Resetting the database
 
 ```bash
-cd backend
-python -m venv .venv
-source .venv/Scripts/activate    # Windows (Git Bash). macOS/Linux: source .venv/bin/activate
-pip install -r requirements-dev.txt
-alembic upgrade head
-uvicorn app.main:app --reload
+docker compose down -v    # deletes all local data
+npm run setup
 ```
 
-API docs: http://localhost:8000/docs
+The container creates `bill_planner` for the app; `npm run setup` and `npm run dev`
+create `bill_planner_test` for tests if it is missing.
 
-### 4. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-App: http://localhost:5173 (requests to `/api` are proxied to the backend)
+If Postgres won't start, `docker compose logs db` shows why.
 
 ## Tests
-
-```bash
-cd backend
-pytest
-
-cd ../frontend
-npm test
-```
 
 Database tests run against `TEST_DATABASE_URL`. The schema is rebuilt from the
 migrations at the start of each run, and every test is rolled back afterwards.
 If the database isn't running, those tests are skipped and the reason is printed.
 
-## Schema changes
+To run one side only:
 
 ```bash
-cd backend
-alembic revision --autogenerate -m "describe the change"   # review the generated file
-alembic upgrade head
-alembic check                                              # confirms models and migrations agree
+cd backend && .venv/Scripts/python -m pytest     # macOS/Linux: .venv/bin/python
+cd frontend && npm test
+```
+
+## Schema changes
+
+Run from `backend/` with the virtual environment's Python
+(`.venv/Scripts/python` on Windows, `.venv/bin/python` on macOS/Linux):
+
+```bash
+python -m alembic revision --autogenerate -m "describe the change"   # review the generated file
+python -m alembic upgrade head
+python -m alembic check                                              # models and migrations agree
 ```

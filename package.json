@@ -1,0 +1,18 @@
+{
+  "name": "household-bill-planner",
+  "private": true,
+  "description": "One-command setup, dev and test runners for the backend and frontend",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "test": "node scripts/test.mjs",
+    "db:stop": "docker compose stop db"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
