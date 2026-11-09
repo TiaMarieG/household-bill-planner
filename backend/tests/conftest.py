@@ -1,3 +1,4 @@
+import os
 from collections.abc import Iterator
 from datetime import date
 from pathlib import Path
@@ -30,18 +31,25 @@ def _run_migrations(engine: Engine, revision: str, upgrade: bool) -> None:
             command.downgrade(config, revision)
 
 
+def _database_unavailable(reason: str) -> None:
+    """Skip database tests locally, but fail them when REQUIRE_TEST_DATABASE is set (as it is in CI)."""
+    if os.environ.get("REQUIRE_TEST_DATABASE"):
+        pytest.fail(reason, pytrace=False)
+    pytest.skip(reason)
+
+
 @pytest.fixture(scope="session")
 def db_engine() -> Iterator[Engine]:
     """Engine for the test database, rebuilt from scratch with migrations once per test run."""
     url = get_settings().test_database_url
     if not url:
-        pytest.skip("TEST_DATABASE_URL is not set")
+        _database_unavailable("TEST_DATABASE_URL is not set")
 
     engine = create_engine(url)
     try:
         engine.connect().close()
     except OperationalError:
-        pytest.skip("test database is unreachable; start it with `docker compose up -d db`")
+        _database_unavailable("test database is unreachable; start it with `npm run dev` or `npm run setup`")
 
     _run_migrations(engine, "base", upgrade=False)
     _run_migrations(engine, "head", upgrade=True)
